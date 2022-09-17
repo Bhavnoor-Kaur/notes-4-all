@@ -1,44 +1,44 @@
 import React, { useState, useEffect } from 'react';
 import { w3cwebsocket as W3CWebSocket } from 'websocket';
-import RecordRTC, { StereoAudioRecorder } from 'recordrtc';
+import RecordRTC, { StereoAudioRecorder, RecordRTCPromisesHandler } from 'recordrtc';
 import { Button, TextField } from '@mui/material';
+import BlobBuilder from '../helpers/BlobBuilder';
 
 
 const GenerateNote = (props) => {
     const [token, setToken] = useState(null);
-    const [currText, setCurrText] = useState(null);
+    const [currText, setCurrText] = useState("");
+    const [fullText, setFullText] = useState("");
+
     const [fullBlob, setFullBlob] = useState(null);
     let websocket = null;
     let recorder = null;
     const [isRecording, setIsRecording] = useState(false);
 
     useEffect(() => {
-        fetch("http://localhost:8000")
+        fetch("http://localhost:8001")
         .then((response) => response.json())
-        .then((data) => setToken(data))
+        .then(({token}) => setToken(token))
         .catch((e) => console.log(e));
     }, [])
 
     const run = () => {
-        console.log("run");
         if (isRecording) {
             if (websocket) {
                 websocket.send(JSON.stringify({ terminate_session: true }));
-                console.log("termination");
-                //websocket.close();
-                //websocket = null;
+                websocket.close();
+                websocket = null;
             }
 
             if (recorder) {
-                recorder.pauseRecording();
+                recorder.stopRecording();
                 recorder = null;
             }
         }
         else {
             // establish 1600 sample rate wss with AssemblyAI (AAI)
-            websocket = new W3CWebSocket(`wss://api.assemblyai.com/v2/realtime/ws?sample_rate=16000&token=${token}`);
-            console.log(websocket);
-            console.log(token);
+            const url = `wss://api.assemblyai.com/v2/realtime/ws?sample_rate=16000&token=${token}`;
+            websocket = new W3CWebSocket(url);
             
             const texts = {};
             websocket.onmessage = (message) => {
@@ -52,7 +52,9 @@ const GenerateNote = (props) => {
                         msg += ` ${texts[key]}`;
                     }
                 }
-                console.log("message is:" + msg);
+                if (res.message_type === "FinalTranscript") {
+                    setFullText(msg);
+                }
                 setCurrText(msg);
             };
 
@@ -62,14 +64,16 @@ const GenerateNote = (props) => {
             }
               
             websocket.onclose = (event) => {
+                console.log(event);
                 websocket = null;
+                sendToServer();
             }  
             
             websocket.onopen = () => {
                 // once socket is open, begin recording
                 navigator.mediaDevices.getUserMedia({ audio: true })
                     .then((stream) => {
-                        recorder = new RecordRTC(stream, {
+                        recorder = new RecordRTCPromisesHandler(stream, {
                             type: 'audio',
                             mimeType: 'audio/webm;codecs=pcm', // endpoint requires 16bit PCM audio
                             recorderType: StereoAudioRecorder,
@@ -85,14 +89,15 @@ const GenerateNote = (props) => {
                     
                                     // audio data must be sent as a base64 encoded string
                                     if (websocket) {
-                                        console.log("send");
                                         websocket.send(JSON.stringify({ audio_data: base64data.split('base64,')[1] }));
                                     }
                                 };
                                 reader.readAsDataURL(blob);
-                                // setFullBlob((prev) => {
-                                    
-                                // });
+
+                                var blobBuilder = new BlobBuilder();
+                                blobBuilder.append(fullBlob);
+                                blobBuilder.append(blob);
+                                setFullBlob(blobBuilder.getBlob());
                             },
                         });
                         recorder.startRecording();
@@ -103,6 +108,32 @@ const GenerateNote = (props) => {
         }    
 
         setIsRecording((prev) => !prev);
+    };
+
+    const sendToServer = () => {
+        if (fullText !== null && fullBlob !== null && !isRecording) {
+            fetch("http://localhost:8001/notes",
+            {
+                method: "POST",
+                headers: { Accept: "application/json" },
+                body: fullText
+                
+            })
+            .then(res => console.log(res))
+            .catch(e => console.error(e));            
+            
+            const fd = new FormData();
+            fd.append('audio', fullBlob);
+            fetch("http://localhost:8001/notes",
+            {
+                method: "PUT",
+                headers: { Accept: "application/json" },
+                body: fd
+                
+            })
+            .then(res => console.log(res))
+            .catch(e => console.error(e));
+        }
     };
 
     return (
