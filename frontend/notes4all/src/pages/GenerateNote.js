@@ -6,13 +6,13 @@ import BlobBuilder from '../helpers/BlobBuilder';
 
 
 const GenerateNote = (props) => {
+    const [recorder, setRecorder] = useState(null);
     const [token, setToken] = useState(null);
     const [currText, setCurrText] = useState("");
     const [fullText, setFullText] = useState("");
 
     const [fullBlob, setFullBlob] = useState(null);
     let websocket = null;
-    let recorder = null;
     const [isRecording, setIsRecording] = useState(false);
 
     useEffect(() => {
@@ -32,7 +32,7 @@ const GenerateNote = (props) => {
 
             if (recorder) {
                 recorder.stopRecording();
-                recorder = null;
+                setRecorder(null);
             }
         }
         else {
@@ -67,13 +67,15 @@ const GenerateNote = (props) => {
                 console.log(event);
                 websocket = null;
                 sendToServer();
+                setCurrText('');
+                setFullText('');
             }  
             
             websocket.onopen = () => {
                 // once socket is open, begin recording
                 navigator.mediaDevices.getUserMedia({ audio: true })
                     .then((stream) => {
-                        recorder = new RecordRTCPromisesHandler(stream, {
+                        const _recorder = new RecordRTC(stream, {
                             type: 'audio',
                             mimeType: 'audio/webm;codecs=pcm', // endpoint requires 16bit PCM audio
                             recorderType: StereoAudioRecorder,
@@ -98,9 +100,11 @@ const GenerateNote = (props) => {
                                 blobBuilder.append(fullBlob);
                                 blobBuilder.append(blob);
                                 setFullBlob(blobBuilder.getBlob());
-                            },
+                            }
                         });
-                        recorder.startRecording();
+                        _recorder.startRecording();
+
+                        setRecorder(_recorder);
                     })
                     .catch((err) => console.error(err));
             };
