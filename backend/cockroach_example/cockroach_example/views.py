@@ -57,7 +57,7 @@ def decode_google_cloud(name):
     blob = bucket.blob(name)
     return blob.download_as_string()
 
-def assembly_request_summary(audio):
+def request_summary(audio):
     return "t"
 
 class NotesView(View):
@@ -69,12 +69,12 @@ class NotesView(View):
             notes = list(Notes.objects.filter(id=id).values())
         o_notes = []
         for note in notes:
-            res = {"title": note["title"], "notes_data": decode_google_cloud(note["note_link"])}
+            res = {"title": note["title"], "notes_data": decode_google_cloud(note["note_link"]).decode('ascii')}
             if "summary_link" in note:
-                res["summary_data"] = decode_google_cloud(note["summary_link"])
+                res["summary_data"] = decode_google_cloud(note["summary_link"]).decode('ascii')
             o_notes.append(res)
             
-        return json.dumps(o_notes)
+        return JsonResponse(o_notes,safe=False)
     
     @retry_on_exception(3)
     @atomic 
@@ -82,7 +82,7 @@ class NotesView(View):
         form_data = json.loads(request.body.decode())
         name, notes_data, summary_data = form_data['title'], form_data['notes_data'], None
         if 'summary_data' in form_data:
-            summary_data = form_data['summary_data']
+            summary_data = request_summary(form_data['summary_data'])
             n = Notes(title=name, note_link=encode_google_cloud(name, 'note', notes_data), summary_link=encode_google_cloud(name, 'summary', summary_data))
         else:
             n = Notes(title=name, note_link=encode_google_cloud(name, 'note', notes_data))
@@ -95,11 +95,13 @@ class NotesView(View):
         if id is None:
             raise Error("unimplemented")
         form_data = json.loads(request.body.decode())
-        name, note_data, summary_data = form_data['title'], form_data["notes_data"], form_data['summary_data']
+        name = form_data['title']
         curr_note = Notes.objects.filter(title=name)[0]
-        if summary_data is not None:
+        if "summary_data" in form_data:
+            summary_data = request_summary(form_data['summary_data'])
             curr_note.summary_data = encode_google_cloud(curr_note.title, 'summary', summary_data)
-        if note_data is not None:
-            curr_note.notes_data = encode_google_cloud(name, 'note', note_data)
+        if "notes_data" in form_data:
+            notes_data = form_data['notes_data']
+            curr_note.notes_data = encode_google_cloud(name, 'note', notes_data)
         curr_note.save()
         return HttpResponse(status=200)
