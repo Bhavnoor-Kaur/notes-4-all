@@ -29,7 +29,7 @@ app.get('*', (req, res) => {
     res.sendFile(path.join(publicPath, 'index.html'));
 });
 
-app.set('port', 8000);
+app.set('port', 8001);
 
 app.listen(app.get('port'), () => {
     console.log("server is up!");
