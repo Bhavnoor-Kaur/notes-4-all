@@ -26,6 +26,7 @@ TEST_FILE = "test.wav"
 
 def write_to_file(audio):
     audio = str.encode(audio)
+    # audio = base64.b64decode(audio)
     with open(TEST_FILE, "wb") as f:
         f.write(audio)
 

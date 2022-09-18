@@ -2,18 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { w3cwebsocket as W3CWebSocket } from 'websocket';
 import RecordRTC, { StereoAudioRecorder } from 'recordrtc';
 import { Button, Paper, Stack } from '@mui/material';
-import BlobBuilder from '../helpers/BlobBuilder';
+import { Link } from 'react-router-dom';
 
-
-const GenerateNote = (props) => {
+const GenerateNote = () => {
     const [recorder, setRecorder] = useState(null);
     const [token, setToken] = useState(null);
     const [currText, setCurrText] = useState("");
     const [fullText, setFullText] = useState("");
-
     const [fullBlob, setFullBlob] = useState("");
+    const [isRecording, setIsRecording] = useState(0);
     let websocket = null;
-    const [isRecording, setIsRecording] = useState(false);
 
     useEffect(() => {
         fetch("http://localhost:8001")
@@ -22,22 +20,8 @@ const GenerateNote = (props) => {
         .catch((e) => console.log(e));
     }, [])
 
-    function convertURIToBinary(dataURI) {
-        let BASE64_MARKER = ';base64,';
-        let base64Index = dataURI.indexOf(BASE64_MARKER) + BASE64_MARKER.length;
-        let base64 = dataURI.substring(base64Index);
-        let raw = window.atob(base64);
-        let rawLength = raw.length;
-        let arr = new Uint8Array(new ArrayBuffer(rawLength));
-      
-        for (let i = 0; i < rawLength; i++) {
-          arr[i] = raw.charCodeAt(i);
-        }
-        return arr;
-      }
-
     const run = () => {
-        if (isRecording) {
+        if (isRecording === 1) {
             if (websocket) {
                 websocket.send(JSON.stringify({ terminate_session: true }));
                 websocket.close();
@@ -45,7 +29,7 @@ const GenerateNote = (props) => {
             }
 
             if (recorder) {
-                recorder.stopRecording();
+                recorder.pauseRecording();
                 setRecorder(null);
             }
         }
@@ -103,10 +87,7 @@ const GenerateNote = (props) => {
                                 reader.onload = () => {
                                     const base64data = reader.result;
                                     
-                                    const binary = convertURIToBinary(base64data);
-                                    setFullBlob(prev => [...prev, binary]);
-                                    // let blobUrl = URL.createObjectURL(blob);
-                                    // return blobUrl;
+                                    setFullBlob(prev => [...prev, base64data]);
 
                                     // audio data must be sent as a base64 encoded string
                                     if (websocket) {
@@ -125,7 +106,7 @@ const GenerateNote = (props) => {
             
         }    
 
-        setIsRecording((prev) => !prev);
+        setIsRecording((prev) => prev + 1);
     };
 
     const sendToServer = () => {
@@ -143,12 +124,6 @@ const GenerateNote = (props) => {
             .then(res => console.log(res))
             .catch(e => console.error(e));            
             
-
-            // const blob = new Blob(fullBlob, {
-            //     type: 'audio/ogg'
-            // });
-            // console.log("blob:" + blob);
-            console.log("f:" + fullBlob);
             fetch("http://localhost:8000/notes/",
             {
                 method: "PUT",
@@ -164,6 +139,7 @@ const GenerateNote = (props) => {
             .then(res => console.log(res))
             .catch(e => console.error(e));
         }
+        window.location.replace("/dashboard");
     };
 
     return (
@@ -172,12 +148,15 @@ const GenerateNote = (props) => {
                 {!isRecording ? "Click to start real time transcriptions!" : "Click to stop and save transcription"}
             </Paper>
             <Paper elevation={0} sx={{ display: "flex", justifyContent:"center"}}>
-                <Button sx={{ mt: "1em", fontSize: "18px", color: "#FFFFFF" }} variant="contained" color="danger" onClick={run}>
-                    {!isRecording ? "Record" : "Stop"}
+                <Button sx={{ mt: "1em", fontSize: "18px", color: "#FFFFFF" }} variant="contained" color={isRecording <= 1 ? "danger" : "primary"} onClick={run}>
+                    {isRecording === 0 ? "Record" : 
+                    <>
+                        {isRecording === 1 ? "Stop" : "View Transcripts"}
+                    </>}
                 </Button>
             </Paper>
             <Paper
-                elevation={!isRecording ? 1 : 4}
+                elevation={isRecording === 0 ? 1 : 4}
                 sx={{
                     display: "flex",
                     mt: "1em",
