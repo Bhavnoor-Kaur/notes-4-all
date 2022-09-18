@@ -64,9 +64,7 @@ def decode_google_cloud(name):
 class NotesView(View):
     
     # @retry_on_exception(3)
-    def get(self, request, id=None, *args, **kwargs):   
-        find_summary('t')
-        
+    def get(self, request, id=None, *args, **kwargs):           
         notes = list(Notes.objects.values())
         if id is not None:
             notes = list(Notes.objects.filter(id=id).values())
