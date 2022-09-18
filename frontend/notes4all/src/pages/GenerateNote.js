@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { w3cwebsocket as W3CWebSocket } from 'websocket';
 import RecordRTC, { StereoAudioRecorder } from 'recordrtc';
-import { Button } from '@mui/material';
+import { Button, Container, Grid, Paper } from '@mui/material';
 import BlobBuilder from '../helpers/BlobBuilder';
 
 
@@ -142,12 +142,27 @@ const GenerateNote = (props) => {
 
     return (
         <>
-        <div>
-            Here is some data: {currText}
+        <Container sx={{ mt: "3em", justifyContent: "center", fontSize: "20px"}}>
+            Click to start real time transcriptions!
+        </Container>
+        <div style={{alignItems:"center"}}>
+            <Button justifyContent="center" sx={{ mt: "2em", fontSize: "18px"}} variant="contained" color="secondary" onClick={run}>
+                {!isRecording ? "Record" : "Stop"}
+            </Button>
         </div>
-        <Button variant="standard" onClick={run}>
-            {!isRecording ? "Record" : "Stop"}
-        </Button>
+        <Paper
+            sx={{
+                mt: "3em",
+                width: 800,
+                height: 500,
+                p: 2,
+                bgcolor: 'background.default',
+                display: 'grid',
+                gridTemplateColumns: { md: '1fr 1fr' },
+                gap: 2,
+                elevation: 5
+            }}
+        > {currText}</Paper>
         </>
     );
 };
