@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { w3cwebsocket as W3CWebSocket } from 'websocket';
 import RecordRTC, { StereoAudioRecorder } from 'recordrtc';
-import { Button, Container, Grid, Paper } from '@mui/material';
+import { Button, Paper, Stack } from '@mui/material';
 import BlobBuilder from '../helpers/BlobBuilder';
 
 
@@ -144,25 +144,29 @@ const GenerateNote = (props) => {
     };
 
     return (
-        <>
-        <Container sx={{ mt: "3em", display: "flex", justifyItems: "center", fontSize: "20px"}}>
-            Click to start real time transcriptions!
-        </Container>
-        <div style={{alignItems:"center"}}>
-            <Button sx={{ mt: "2em", fontSize: "18px" }} variant="contained" color="secondary" onClick={run}>
-                {!isRecording ? "Record" : "Stop"}
-            </Button>
-        </div>
-        <Paper
-            elevation={2}
-            sx={{
-                mt: "3em",
-                width: "75%",
-                height: "200px",
-                p: 2,
-            }}
-        > {currText}</Paper>
-        </>
+        <Stack direction="column" sx={{ mt: "3em", alignItems: "center" }}>
+            <Paper elevation={0} sx={{ fontSize: "20px", display: "flex", justifyContent: "center" }}>
+                {!isRecording ? "Click to start real time transcriptions!" : "Click to stop and save transcription"}
+            </Paper>
+            <Paper elevation={0} sx={{ display: "flex", justifyContent:"center"}}>
+                <Button sx={{ mt: "1em", fontSize: "18px", color: "#FFFFFF" }} variant="contained" color="danger" onClick={run}>
+                    {!isRecording ? "Record" : "Stop"}
+                </Button>
+            </Paper>
+            <Paper
+                elevation={!isRecording ? 1 : 4}
+                sx={{
+                    display: "flex",
+                    mt: "1em",
+                    width: "75%",
+                    height: "15rem",
+                    p: 2,
+                    justifyContent: "center"
+                }}
+            >
+                {currText}
+            </Paper>
+        </Stack>
     );
 };
 

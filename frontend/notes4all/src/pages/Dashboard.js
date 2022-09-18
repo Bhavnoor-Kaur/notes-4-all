@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Navigate } from 'react-router-dom';
-import { Typography, Grid, Button, Link } from "@mui/material";
+import { Typography, Grid, Button } from "@mui/material";
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import { Container } from "@mui/system";
 import NoteTable from "../components/NoteTable";
@@ -15,11 +15,13 @@ const Dashboard = () => {
 
     useEffect(() => {
         fetch("http://localhost:8000/notes")
-        .then(response => response.data)
-        .then(data => {
+        .then(response => response.json())
+        .then(_data => {
+            const data = JSON.parse(_data);
             data.map((row) => createData(row));
             setRows(data);
-        });
+        })
+        .catch(e => console.error(e));
         setRedirect(false);
     }, []);
 

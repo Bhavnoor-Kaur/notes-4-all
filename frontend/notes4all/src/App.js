@@ -22,10 +22,10 @@ const App = () => {
         main: "#000000",
       },
       secondary: {
-        main: "#00BFB2"
+        main: "#00BFB2",
       },
       danger: {
-        main: "#"
+        main: "#8B0000",
       }
     }
   });
