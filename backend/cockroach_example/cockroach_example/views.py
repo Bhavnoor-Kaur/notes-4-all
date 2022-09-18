@@ -10,8 +10,12 @@ import json
 import sys
 import time
 from google.cloud import storage
+import requests
+import json
+from .utils import *
 
 from .models import *
+import os
 
 GOOGLE_CLOUD_BUCKET = "notes4alltest"
 storage_client = storage.Client()
@@ -57,13 +61,12 @@ def decode_google_cloud(name):
     blob = bucket.blob(name)
     return blob.download_as_string()
 
-def request_summary(audio):
-    return "t"
-
 class NotesView(View):
     
     # @retry_on_exception(3)
     def get(self, request, id=None, *args, **kwargs):   
+        find_summary('t')
+        
         notes = list(Notes.objects.values())
         if id is not None:
             notes = list(Notes.objects.filter(id=id).values())
@@ -82,7 +85,7 @@ class NotesView(View):
         form_data = json.loads(request.body.decode())
         name, notes_data, summary_data = form_data['title'], form_data['notes_data'], None
         if 'summary_data' in form_data:
-            summary_data = request_summary(form_data['summary_data'])
+            summary_data = find_summary(form_data['summary_data'])
             n = Notes(title=name, note_link=encode_google_cloud(name, 'note', notes_data), summary_link=encode_google_cloud(name, 'summary', summary_data))
         else:
             n = Notes(title=name, note_link=encode_google_cloud(name, 'note', notes_data))
@@ -98,7 +101,7 @@ class NotesView(View):
         name = form_data['title']
         curr_note = Notes.objects.filter(title=name)[0]
         if "summary_data" in form_data:
-            summary_data = request_summary(form_data['summary_data'])
+            summary_data = find_summary(form_data['summary_data'])
             curr_note.summary_data = encode_google_cloud(curr_note.title, 'summary', summary_data)
         if "notes_data" in form_data:
             notes_data = form_data['notes_data']
