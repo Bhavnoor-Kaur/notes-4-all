@@ -14,7 +14,7 @@ const Dashboard = () => {
     };
 
     useEffect(() => {
-        fetch("http://localhost:8000/notes")
+        fetch("http://localhost:8000/notes/")
         .then(response => response.json())
         .then(_data => {
             const data = JSON.parse(_data);
