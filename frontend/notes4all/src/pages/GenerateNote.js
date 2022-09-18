@@ -116,24 +116,27 @@ const GenerateNote = (props) => {
 
     const sendToServer = () => {
         if (fullText !== null && fullBlob !== null && !isRecording) {
-            fetch("http://localhost:8000/notes",
+            console.log("sending!")
+            fetch("http://localhost:8000/notes/",
             {
                 method: "POST",
                 headers: { Accept: "application/json" },
-                body: fullText
-                
+                body: JSON.stringify({ 
+                    'title': 'ece 106',
+                    'notes_data': fullText,
+                })
             })
             .then(res => console.log(res))
             .catch(e => console.error(e));            
             
-            const fd = new FormData();
-            fd.append('audio', fullBlob);
-            fetch("http://localhost:8000/notes",
+            fetch("http://localhost:8000/notes/",
             {
                 method: "PUT",
                 headers: { Accept: "application/json" },
-                body: fd
-                
+                body: JSON.stringify({
+                    'title': 'ece 106',
+                    'summary_data': fullBlob,
+                })
             })
             .then(res => console.log(res))
             .catch(e => console.error(e));
