@@ -1,4 +1,4 @@
-const BlobBuilder = function() {
+var BlobBuilder = function() {
     this.parts = [];
   }
   

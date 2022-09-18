@@ -1,6 +1,7 @@
-import { Button, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow } from "@mui/material";
-import React, { useEffect, useState } from "react";
-import VisibilityIcon from '@mui/icons-material/Visibility';
+import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow } from "@mui/material";
+import React, { useState } from "react";
+import ExpandText from "./ExpandText";
+import GenerateSummary from "./GenerateSummary";
 
 const columns = [
     { id: 'date', label: 'Date', minWidth: "15%" },
@@ -23,14 +24,6 @@ const NoteTable = ({rows}) => {
         setPage(0);
     };
 
-    const handleClick = () => {
-        console.log("generating summary!");
-    }
-
-    useEffect(() => {
-        console.log(rows);
-    },[]);
-
     return (
         <Paper sx={{ width: '100%', overflow: 'hidden', mt: "1em" }}>
             <TableContainer sx={{ maxHeight: 550 }}>
@@ -41,7 +34,7 @@ const NoteTable = ({rows}) => {
                     <TableCell
                         key={column.id}
                         align={column.align}
-                        style={{ minWidth: column.minWidth }}
+                        sx={{ minWidth: column.minWidth, px: 1 }}
                     >
                         {column.label}
                     </TableCell>
@@ -57,20 +50,11 @@ const NoteTable = ({rows}) => {
                         {columns.map((column) => {
                             const value = row[column.id];
                             return (
-                            <TableCell key={column.id} align={column.align}>
-                                {column.id === "summary" && !value ?
-                                <Button variant="contained" 
-                                    color="secondary" 
-                                    onClick={handleClick}
-                                >
-                                    Generate Summary!                                    
-                                </Button>
-                                : value.length > 100 ?
-                                    <span>
-                                        {value.substring(0, 100)}...
-                                        <VisibilityIcon />
-                                    </span>
-                                    : value
+                            <TableCell key={column.id} align={column.align} sx={{ px: 1 }}>
+                                {(column.id === "summary" && value !== undefined && value.length > 0) ?
+                                    <GenerateSummary key={column.id} summary={value} /> :
+                                    (value !== undefined && value.length > 0) ? 
+                                    <ExpandText key={column.id} value={value} /> : null
                                 }
                             </TableCell>
                             );

@@ -11,7 +11,7 @@ const GenerateNote = (props) => {
     const [currText, setCurrText] = useState("");
     const [fullText, setFullText] = useState("");
 
-    const [fullBlob, setFullBlob] = useState(null);
+    const [fullBlob, setFullBlob] = useState("");
     let websocket = null;
     const [isRecording, setIsRecording] = useState(false);
 
@@ -21,6 +21,20 @@ const GenerateNote = (props) => {
         .then(({token}) => setToken(token))
         .catch((e) => console.log(e));
     }, [])
+
+    function convertURIToBinary(dataURI) {
+        let BASE64_MARKER = ';base64,';
+        let base64Index = dataURI.indexOf(BASE64_MARKER) + BASE64_MARKER.length;
+        let base64 = dataURI.substring(base64Index);
+        let raw = window.atob(base64);
+        let rawLength = raw.length;
+        let arr = new Uint8Array(new ArrayBuffer(rawLength));
+      
+        for (let i = 0; i < rawLength; i++) {
+          arr[i] = raw.charCodeAt(i);
+        }
+        return arr;
+      }
 
     const run = () => {
         if (isRecording) {
@@ -84,22 +98,22 @@ const GenerateNote = (props) => {
                             numberOfAudioChannels: 1, // real-time requires only one channel
                             bufferSize: 4096,
                             audioBitsPerSecond: 128000,
-                            ondataavailable: (blob) => {
+                            ondataavailable: (_blob) => {
                                 const reader = new FileReader();
                                 reader.onload = () => {
                                     const base64data = reader.result;
-                    
+                                    
+                                    const binary = convertURIToBinary(base64data);
+                                    setFullBlob(prev => [...prev, binary]);
+                                    // let blobUrl = URL.createObjectURL(blob);
+                                    // return blobUrl;
+
                                     // audio data must be sent as a base64 encoded string
                                     if (websocket) {
                                         websocket.send(JSON.stringify({ audio_data: base64data.split('base64,')[1] }));
                                     }
                                 };
-                                reader.readAsDataURL(blob);
-
-                                var blobBuilder = new BlobBuilder();
-                                blobBuilder.append(fullBlob);
-                                blobBuilder.append(blob);
-                                setFullBlob(blobBuilder.getBlob());
+                                reader.readAsDataURL(_blob);
                             }
                         });
                         _recorder.startRecording();
@@ -129,13 +143,22 @@ const GenerateNote = (props) => {
             .then(res => console.log(res))
             .catch(e => console.error(e));            
             
+
+            // const blob = new Blob(fullBlob, {
+            //     type: 'audio/ogg'
+            // });
+            // console.log("blob:" + blob);
+            console.log("f:" + fullBlob);
             fetch("http://localhost:8000/notes/",
             {
                 method: "PUT",
-                headers: { Accept: "application/json" },
+                headers: { 
+                    Accept: "application/json",
+                    'Content-Type': 'application/json'
+            },
                 body: JSON.stringify({
                     'title': 'ece 106',
-                    'summary_data': fullBlob,
+                    'summary_data': JSON.stringify(fullBlob),
                 })
             })
             .then(res => console.log(res))

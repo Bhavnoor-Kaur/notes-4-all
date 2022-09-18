@@ -17,17 +17,17 @@ const Dashboard = () => {
         fetch("http://localhost:8000/notes/")
         .then(response => response.json())
         .then(_data => {
-            console.log(_data);
             let data = [];
             _data.forEach((row) => data = [...data, createData(row)]);
+            console.log(data);
             setRows(data);
         })
         .catch(e => console.error(e));
         setRedirect(false);
     }, []);
 
-    const createData = ({title, notes_data, summary_data}) => {
-        return { date: "18/09/2022", id: "h2n", title, transcription: notes_data, summary: summary_data };
+    const createData = ({id, title, notes_data, summary_data}) => {
+        return { date: "18/09/2022", id: id, title, transcription: notes_data, summary: summary_data };
     };
 
     return (
