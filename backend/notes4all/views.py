@@ -71,7 +71,7 @@ class NotesView(View):
         o_notes = []
         for note in notes:
             res = {"title": note["title"], "notes_data": decode_google_cloud(note["note_link"]).decode('ascii')}
-            if "summary_link" in note:
+            if "summary_link" in note and len(note["summary_link"]) != 0:
                 res["summary_data"] = decode_google_cloud(note["summary_link"]).decode('ascii')
             o_notes.append(res)
         
@@ -88,7 +88,7 @@ class NotesView(View):
         else:
             n = Notes(title=name, note_link=encode_google_cloud(name, 'note', notes_data))
         n.save()
-        return HttpResponse(status=200)
+        return HttpResponse(status=201)
     
     @retry_on_exception(3)
     @atomic
@@ -105,4 +105,4 @@ class NotesView(View):
             notes_data = form_data['notes_data']
             curr_note.notes_data = encode_google_cloud(name, 'note', notes_data)
         curr_note.save()
-        return HttpResponse(status=200)
+        return HttpResponse(status=201)

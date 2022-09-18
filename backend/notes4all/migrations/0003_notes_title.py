@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('cockroach_example', '0002_notes_remove_orders_customer_remove_orders_product_and_more'),
+        ('notes4all', '0002_notes_remove_orders_customer_remove_orders_product_and_more'),
     ]
 
     operations = [

@@ -7,7 +7,7 @@ import uuid
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('cockroach_example', '0001_initial'),
+        ('notes4all', '0001_initial'),
     ]
 
     operations = [
