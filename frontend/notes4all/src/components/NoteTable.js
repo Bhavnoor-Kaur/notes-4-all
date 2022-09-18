@@ -1,5 +1,5 @@
 import { Button, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 
 const columns = [
@@ -27,9 +27,13 @@ const NoteTable = ({rows}) => {
         console.log("generating summary!");
     }
 
+    useEffect(() => {
+        console.log(rows);
+    },[]);
+
     return (
         <Paper sx={{ width: '100%', overflow: 'hidden', mt: "1em" }}>
-            <TableContainer sx={{ maxHeight: 440 }}>
+            <TableContainer sx={{ maxHeight: 550 }}>
             <Table stickyHeader aria-label="sticky table">
                 <TableHead>
                 <TableRow>
