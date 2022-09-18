@@ -116,7 +116,7 @@ const GenerateNote = (props) => {
 
     const sendToServer = () => {
         if (fullText !== null && fullBlob !== null && !isRecording) {
-            fetch("http://localhost:8001/notes",
+            fetch("http://localhost:8000/notes",
             {
                 method: "POST",
                 headers: { Accept: "application/json" },
@@ -128,7 +128,7 @@ const GenerateNote = (props) => {
             
             const fd = new FormData();
             fd.append('audio', fullBlob);
-            fetch("http://localhost:8001/notes",
+            fetch("http://localhost:8000/notes",
             {
                 method: "PUT",
                 headers: { Accept: "application/json" },
@@ -142,25 +142,21 @@ const GenerateNote = (props) => {
 
     return (
         <>
-        <Container sx={{ mt: "3em", justifyContent: "center", fontSize: "20px"}}>
+        <Container sx={{ mt: "3em", display: "flex", justifyItems: "center", fontSize: "20px"}}>
             Click to start real time transcriptions!
         </Container>
         <div style={{alignItems:"center"}}>
-            <Button justifyContent="center" sx={{ mt: "2em", fontSize: "18px"}} variant="contained" color="secondary" onClick={run}>
+            <Button sx={{ mt: "2em", fontSize: "18px" }} variant="contained" color="secondary" onClick={run}>
                 {!isRecording ? "Record" : "Stop"}
             </Button>
         </div>
         <Paper
+            elevation={2}
             sx={{
                 mt: "3em",
-                width: 800,
-                height: 500,
+                width: "75%",
+                height: "200px",
                 p: 2,
-                bgcolor: 'background.default',
-                display: 'grid',
-                gridTemplateColumns: { md: '1fr 1fr' },
-                gap: 2,
-                elevation: 5
             }}
         > {currText}</Paper>
         </>

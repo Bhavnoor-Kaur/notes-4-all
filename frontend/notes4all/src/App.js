@@ -1,10 +1,18 @@
 import React from "react";
 import { Container } from "@mui/system";
-import { AppBar, createTheme, ThemeProvider } from "@mui/material";
+import { createTheme, ThemeProvider } from "@mui/material";
+import { 
+  BrowserRouter as Router,
+  useNavigate,
+  Routes,
+  Route 
+} from 'react-router-dom';
 
+import Navbar from "./components/Navbar";
 import CreateNote from "./pages/CreateNote";
 import GenerateNote from "./pages/GenerateNote";
-import Navbar from "./components/Navbar";
+import Dashboard from "./pages/Dashboard";
+import NavigateRoute from "./components/NavigateRoute";
 
 
 const App = () => {
@@ -20,16 +28,22 @@ const App = () => {
         main: "#"
       }
     }
-  })
+  });
+  
 
   return (
+    <Router>
     <ThemeProvider theme={theme}>
-    <Navbar />
-    <Container maxWidth="xs">
-      {/* <CreateNote /> */}
-      <GenerateNote />
-    </Container>
+      <Navbar />
+      <Container>
+        <Routes>
+          <Route path="*" element={<NavigateRoute to="/dashboard" />}></Route> 
+          <Route path="/dashboard" element={<Dashboard />}></Route>
+          <Route path="/record" element={<GenerateNote />}></Route>
+        </Routes>
+      </Container>
     </ThemeProvider>
+    </Router>
   );
 };
 
