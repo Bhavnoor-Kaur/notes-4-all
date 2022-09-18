@@ -54,6 +54,8 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'cockroach_example.urls'
 
+DATA_UPLOAD_MAX_MEMORY_SIZE = None
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',

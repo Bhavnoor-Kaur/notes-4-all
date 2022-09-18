@@ -76,7 +76,7 @@ class NotesView(View):
             if "summary_link" in note:
                 res["summary_data"] = decode_google_cloud(note["summary_link"]).decode('ascii')
             o_notes.append(res)
-            
+        
         return JsonResponse(o_notes,safe=False)
     
     @retry_on_exception(3)
