@@ -70,7 +70,7 @@ class NotesView(View):
             notes = list(Notes.objects.filter(id=id).values())
         o_notes = []
         for note in notes:
-            res = {"title": note["title"], "notes_data": decode_google_cloud(note["note_link"]).decode('ascii')}
+            res = {"id": note["id"], "title": note["title"], "notes_data": decode_google_cloud(note["note_link"]).decode('ascii')}
             if "summary_link" in note and len(note["summary_link"]) != 0:
                 res["summary_data"] = decode_google_cloud(note["summary_link"]).decode('ascii')
             o_notes.append(res)
