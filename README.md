@@ -19,9 +19,14 @@ We want to make this a centralized system where each user can have their own acc
 
 ## Running Intructions for Local Use
 
-1. Run the following in the home diretcory: 'npm install'
+1. Run the following in the home directory: `npm install`
 
-2. Navigate to frontend/server: run 'node server.js'
+2. Navigate to frontend/server: run `node server.js`
 3. Open another terminal window and navigate to frontend/notes4all:
-    - Run 'npm install'
-    - Run 'npm run start'
+    - Run `npm install`
+    - Run `npm run start`
+4. Open another terminal window and navigate to backend:
+    - [Optional] Create a virtualenv and activate it
+    - Run `pip install -r requirements.txt`
+    - Setup the requirement .env variables
+    - Run `python manage.py runserver`
